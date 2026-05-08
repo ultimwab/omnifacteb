@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SarvKarta Command Center 🛡️</title>
+    <title>OmniFactEb</title>
     <script src="https://cloudflare.com"></script>
     <style>
-        @import url('https://cdnfonts.com');
+        @import url('https://fonts.googleapis.com/css2?family=Amita:wght@400;700&display=swap');
         :root { --bg: #1a1a1a; --sidebar: #2b2b2b; --accent: #00ff88; --gold: #d4af37; --text: #efefef; --border: #444; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Amita', sans-serif; display: flex; height: 100vh; overflow: hidden; }
         
         /* Sidebar */
         nav { width: 240px; background: var(--sidebar); border-right: 2px solid var(--gold); display: flex; flex-direction: column; padding: 20px; }
         .nav-item { padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 10px; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
-        .nav-item.active { background: var(--gold); color: #1a1a1a; font-weight: bold; }
+        .nav-item.active { background: var(--gold); color: #1a1a1a; font-weight: 700; }
 
         /* Main Screen */
         main { flex: 1; display: flex; flex-direction: column; }
@@ -41,7 +41,7 @@
 <body>
 
 <nav>
-    <h2 style="color:var(--gold); text-align:center;">SARVKARTA</h2>
+    <h1 style="color:var(--gold); text-align:center;">OmniFactEb</h1>
     <div class="nav-item active" onclick="navTo('home')">🏠 Home</div>
     <div class="nav-item" onclick="navTo('calc')">🔢 Digitheoremo</div>
     <div class="nav-item" onclick="navTo('weather')">🌦️ Weather Scan</div>
@@ -148,13 +148,85 @@
 
     // --- DIGITHEOREMO CALC ---
     const disp = document.getElementById('display');
-    let isExp = false;
-    function appendValue(v) {
-        if(disp.innerHTML === '0') disp.innerHTML = v;
-        else disp.innerHTML += v;
-    }
+    let isExponentMode = false;
+    function appendValue(val) {
+            if (display.innerHTML === '0' || display.innerHTML === 'Error') {
+                display.innerHTML = val;
+            } else {
+                // If user types an operator while in exponent mode, exit exponent mode first
+                if (isExponentMode && ['+', '-', '*', '/', '%'].includes(val)) {
+                    isExponentMode = false;
+                }
+
+                if (isExponentMode) {
+                    let sups = display.getElementsByTagName('sup');
+                    if (sups.length > 0) {
+                        sups[sups.length - 1].innerHTML += val;
+                    } else {
+                        display.innerHTML += `<sup>${val}</sup>`;
+                    }
+                } else {
+                    display.innerHTML += val;
+                }
+            }
+        }
+    function startExponent() {
+            if (display.innerHTML !== '0' && display.innerHTML !== 'Error') {
+                isExponentMode = true;
+            }
+        }
+    function smartParentheses() {
+            const content = display.innerHTML;
+            const openCount = (content.match(/\(/g) || []).length;
+            const closeCount = (content.match(/\)/g) || []).length;
+            
+            // Logic: If there is an open bracket and the last char is a number, close it. Otherwise open.
+            const lastChar = content.slice(-1);
+            if (openCount > closeCount && !isNaN(lastChar) && lastChar !== " " || lastChar === '>') {
+                appendValue(')');
+            } else {
+                appendValue('(');
+            }
+        }
     function clearDisplay() { disp.innerHTML = '0'; }
-    function calculate() { try { disp.innerHTML = eval(disp.innerHTML.replace(/÷/g,'/').replace(/×/g,'*')); } catch { disp.innerHTML = "Error"; } }
+    function deleteLast() {
+            if (display.innerHTML !== '0' && display.innerHTML !== 'Error') {
+                // If last part is an exponent tag, handle it carefully
+                if (display.innerHTML.endsWith('</sup>')) {
+                    let sups = display.getElementsByTagName('sup');
+                    let lastSup = sups[sups.length - 1];
+                    if (lastSup.innerHTML.length > 1) {
+                        lastSup.innerHTML = lastSup.innerHTML.slice(0, -1);
+                    } else {
+                        lastSup.remove();
+                        isExponentMode = false;
+                    }
+                } else {
+                    display.innerHTML = display.innerHTML.length > 1 ? display.innerHTML.slice(0, -1) : '0';
+                }
+            }
+        }
+    function calculate() {
+            try {
+                let expression = display.innerHTML
+                    .replace(/<sup>(.*?)<\/sup>/g, "**($1)") 
+                    .replace(/%/g, '/100')
+                    .replace(/÷/g, '/')
+                    .replace(/×/g, '*');
+                
+                let res = eval(expression);
+                display.innerHTML = Number.isInteger(res) ? res : res.toFixed(4);
+                isExponentMode = false;
+            } catch { display.innerHTML = "Error"; }
+        }
+    function calculateSqrt() {
+            try {
+                let expression = display.innerHTML.replace(/<sup>(.*?)<\/sup>/g, "**($1)").replace(/%/g, '/100');
+                let res = Math.sqrt(eval(expression)).toFixed(4);
+                display.innerHTML = parseFloat(res);
+                isExponentMode = false;
+            } catch { display.innerHTML = "Error"; }
+        }
 
     // --- WEATHER ---
     async function getWeather() {
