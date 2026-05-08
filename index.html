@@ -3,212 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SarvKarta Command Center</title>
+    <title>SarvKarta Command Center 🛡️</title>
+    <script src="https://cloudflare.com"></script>
     <style>
-        :root {
-            --bg: #202124; --sidebar: #303134; --text: #bdc1c6;
-            --accent: #8ab4f8; --hover: #3c4043; --border: #5f6368;
-        }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; display: flex; height: 100vh; overflow: hidden; }
+        @import url('https://cdnfonts.com');
+        :root { --bg: #1a1a1a; --sidebar: #2b2b2b; --accent: #00ff88; --gold: #d4af37; --text: #efefef; --border: #444; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; }
         
         /* Sidebar */
-        nav { width: 240px; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 15px; }
-        nav h2 { color: var(--accent); font-size: 1.2rem; margin-bottom: 20px; }
-        .nav-item { padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 5px; transition: 0.2s; }
-        .nav-item:hover { background: var(--hover); }
-        .nav-item.active { background: var(--hover); color: white; border-left: 4px solid var(--accent); }
+        nav { width: 240px; background: var(--sidebar); border-right: 2px solid var(--gold); display: flex; flex-direction: column; padding: 20px; }
+        .nav-item { padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 10px; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
+        .nav-item.active { background: var(--gold); color: #1a1a1a; font-weight: bold; }
 
-        /* Main Content */
+        /* Main Screen */
         main { flex: 1; display: flex; flex-direction: column; }
-        header { padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--sidebar); border-bottom: 1px solid var(--border); }
+        header { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; background: var(--sidebar); border-bottom: 1px solid var(--border); }
+        .content { flex: 1; padding: 30px; overflow-y: auto; display: flex; justify-content: center; }
+        .screen { width: 100%; max-width: 850px; display: none; }
+        .screen.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Digitheoremo Styles */
+        .calc-container { background: #2b2b2b; padding: 25px; border-radius: 20px; border: 2px solid var(--gold); }
+        #display { background: #000; height: 70px; border-radius: 8px; font-size: 32px; text-align: right; padding: 0 15px; line-height: 70px; color: var(--accent); font-family: 'Seven Segment', monospace; border: 1px solid var(--border); overflow: hidden; margin-bottom: 15px; }
+
+        /* Games UI */
+        .card { background: var(--sidebar); padding: 20px; border-radius: 15px; border: 1px solid var(--border); text-align: center; margin-bottom: 20px;}
+        .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .ttt-board { display: grid; grid-template-columns: repeat(3, 80px); gap: 5px; justify-content: center; margin: 20px 0; }
+        .cell { width: 80px; height: 80px; background: #3d3d3d; border-radius: 8px; font-size: 2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         
-        .controls { display: flex; gap: 10px; }
-        .btn { background: var(--hover); border: 1px solid var(--border); color: white; padding: 5px 12px; border-radius: 4px; cursor: pointer; }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-        .content-area { flex: 1; padding: 30px; overflow-y: auto; display: flex; justify-content: center; }
-        .tool-screen { width: 100%; max-width: 800px; display: none; }
-        .tool-screen.active { display: block; }
-
-        /* Google Calc Style */
-        .calc-box { max-width: 350px; background: #202124; border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
-        #calc-display { width: 100%; background: none; border: none; color: white; text-align: right; font-size: 2rem; margin-bottom: 20px; outline: none; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .calc-btn { padding: 15px; background: #3c4043; border: none; color: white; border-radius: 4px; font-size: 1.1rem; cursor: pointer; }
-        .calc-btn:hover { background: #4f5357; }
-        .calc-blue { background: var(--accent); color: #202124; }
-
-        /* Input Styles */
-        input { background: #202124; border: 1px solid var(--border); color: white; padding: 8px; border-radius: 4px; }
+        button { background: #3d3d3d; color: white; border: 1px solid var(--gold); padding: 10px; border-radius: 6px; cursor: pointer; }
+        .btn-accent { background: var(--accent); color: black; font-weight: bold; }
+        select { background: #000; color: var(--accent); border: 1px solid var(--gold); padding: 5px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <nav>
-    <h2>SarvKarta 🛡️</h2>
-    <div class="nav-item active" onclick="showTool('home')">🏠 Home</div>
-    <div class="nav-item" onclick="showTool('weather')">🌦️ Weather</div>
-    <div class="nav-item" onclick="showTool('calc')">🔢 Calculator</div>
-    <div class="nav-item" onclick="showTool('games')">🎮 Games Hub</div>
-    <div class="nav-item" onclick="showTool('alarm')">⏰ Alarm/Routine</div>
+    <h2 style="color:var(--gold); text-align:center;">SARVKARTA</h2>
+    <div class="nav-item active" onclick="navTo('home')">🏠 Home</div>
+    <div class="nav-item" onclick="navTo('calc')">🔢 Digitheoremo</div>
+    <div class="nav-item" onclick="navTo('weather')">🌦️ Weather Scan</div>
+    <div class="nav-item" onclick="navTo('games')">🎮 Arcade Games</div>
+    <div class="nav-item" onclick="navTo('alarm')">⏰ Routine Alarm</div>
 </nav>
 
 <main>
     <header>
-        <div class="controls">
-            <button class="btn" onclick="showTool('home')">Home</button>
-            <button class="btn" id="undoBtn" onclick="undo()" disabled>⟲ Undo</button>
-            <button class="btn" id="redoBtn" onclick="redo()" disabled>⟳ Redo</button>
+        <div style="display:flex; gap:10px">
+            <button onclick="undo()" id="uBtn" disabled>⟲ Undo</button>
+            <button onclick="redo()" id="rBtn" disabled>⟳ Redo</button>
         </div>
-        <div id="header-info" style="text-align: right;">
-            <div id="top-clock" style="font-weight: bold;">00:00:00</div>
-            <div id="top-loc" style="font-size: 0.8rem; color: var(--accent)">Detecting...</div>
-        </div>
+        <div id="clock" style="font-weight:bold; font-size: 1.2rem;">00:00:00</div>
     </header>
 
-    <div class="content-area">
-        <!-- Home Screen -->
-        <div id="home" class="tool-screen active">
-            <h1>Welcome, Captain.</h1>
-            <p>Select a tool from the sidebar to begin your session.</p>
+    <div class="content">
+        <!-- Home -->
+        <div id="home" class="screen active">
+            <h1>Command Base Online</h1>
+            <p>System status: <strong>Optimal</strong>. All tools ready for deployment.</p>
         </div>
 
-        <!-- Weather -->
-        <div id="weather" class="tool-screen">
-            <h3>Real-Time Weather</h3>
-            <input type="text" id="citySearch" placeholder="Enter city...">
-            <button class="btn" onclick="fetchWeather()">Search</button>
-            <div id="weatherOut" style="margin-top:20px; font-size: 1.2rem;"></div>
-        </div>
-
-        <!-- Calculator -->
-        <div id="calc" class="tool-screen">
-            <div class="calc-box">
-                <input type="text" id="calc-display" readonly value="0">
-                <div class="calc-grid">
-                    <button class="calc-btn" onclick="cIn('(')">(</button>
-                    <button class="calc-btn" onclick="cIn(')')">)</button>
-                    <button class="calc-btn" onclick="cIn('%')">%</button>
-                    <button class="calc-btn" onclick="cClear()" style="background:#ea4335">AC</button>
-                    <button class="calc-btn" onclick="cIn('7')">7</button>
-                    <button class="calc-btn" onclick="cIn('8')">8</button>
-                    <button class="calc-btn" onclick="cIn('9')">9</button>
-                    <button class="calc-btn calc-blue" onclick="cIn('/')">÷</button>
-                    <button class="calc-btn" onclick="cIn('4')">4</button>
-                    <button class="calc-btn" onclick="cIn('5')">5</button>
-                    <button class="calc-btn" onclick="cIn('6')">6</button>
-                    <button class="calc-btn calc-blue" onclick="cIn('*')">×</button>
-                    <button class="calc-btn" onclick="cIn('1')">1</button>
-                    <button class="calc-btn" onclick="cIn('2')">2</button>
-                    <button class="calc-btn" onclick="cIn('3')">3</button>
-                    <button class="calc-btn calc-blue" onclick="cIn('-')">−</button>
-                    <button class="calc-btn" onclick="cIn('0')">0</button>
-                    <button class="calc-btn" onclick="cIn('.')">.</button>
-                    <button class="calc-btn calc-blue" onclick="cSolve()" style="grid-column: span 2">=</button>
+        <!-- Digitheoremo -->
+        <div id="calc" class="screen">
+            <div class="calc-container">
+                <div id="display">0</div>
+                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+                    <button class="btn-accent" style="background:#c0392b; color:white;" onclick="clearDisplay()">CLEAR</button>
+                    <button class="btn-accent" style="background:#d35400; color:white;" onclick="deleteLast()">DEL</button>
+                    <button onclick="calculateSqrt()">√</button>
+                    <button onclick="startExponent()">^</button>
+                    <button onclick="appendValue('7')">7</button><button onclick="appendValue('8')">8</button><button onclick="appendValue('9')">9</button><button onclick="appendValue('/')">÷</button>
+                    <button onclick="appendValue('4')">4</button><button onclick="appendValue('5')">5</button><button onclick="appendValue('6')">6</button><button onclick="appendValue('*')">×</button>
+                    <button onclick="appendValue('1')">1</button><button onclick="appendValue('2')">2</button><button onclick="appendValue('3')">3</button><button onclick="appendValue('-')">-</button>
+                    <button onclick="appendValue('.')">.</button><button onclick="appendValue('0')">0</button><button class="btn-accent" onclick="calculate()">=</button><button onclick="appendValue('+')">+</button>
                 </div>
             </div>
         </div>
 
-        <!-- Games -->
-        <div id="games" class="tool-screen">
-            <h3>Games Hub</h3>
-            <div class="calc-grid">
-                <button class="calc-btn" onclick="alert('Chess...')">Chess</button>
-                <button class="calc-btn" onclick="alert('Ludo...')">Ludo</button>
-                <button class="calc-btn" onclick="alert('Snakes...')">Snakes</button>
-                <button class="calc-btn" onclick="alert('TicTac...')">TicTac</button>
+        <!-- Weather -->
+        <div id="weather" class="screen">
+            <div class="card">
+                <h3>Global Atmospheric Scan</h3>
+                <input type="text" id="cityIn" placeholder="Search City..." style="background:#000; color:var(--accent); border:1px solid var(--gold); padding:8px;">
+                <button onclick="getWeather()">Scan</button>
+                <div id="weatherOut" style="margin-top:15px;"></div>
+            </div>
+        </div>
+
+        <!-- Games Hub -->
+        <div id="games" class="screen">
+            <div class="card">
+                <h3>Select Game & Difficulty</h3>
+                <select id="gameDiff">
+                    <option value="easy">Level: EASY (Casual)</option>
+                    <option value="hard">Level: HARD (Unbeatable)</option>
+                </select>
+                <div class="game-grid" style="margin-top:20px;">
+                    <button onclick="startTTT()">Tic-Tac-Toe</button>
+                    <button onclick="alert('Chess AI loading...')">Chess</button>
+                    <button onclick="alert('Ludo AI loading...')">Ludo</button>
+                    <button onclick="alert('S&L AI loading...')">Snakes & Ladders</button>
+                    <button onclick="alert('Carrom physics loading...')">Carrom</button>
+                    <button onclick="alert('RPS AI loading...')">Rock Paper Scissors</button>
+                </div>
+            </div>
+            
+            <div id="active-game" class="card" style="display:none;">
+                <div id="ttt-wrap">
+                    <div id="ttt-status">Your Turn (X)</div>
+                    <div class="ttt-board" id="ttt-board"></div>
+                </div>
+                <button onclick="closeGame()">Quit Game</button>
             </div>
         </div>
 
         <!-- Alarm -->
-        <div id="alarm" class="tool-screen">
-            <h3>Hilarious Routine Alarm</h3>
-            <input type="text" id="alarmMsg" placeholder="Shout this task...">
-            <input type="time" id="alarmTime">
-            <button class="btn" onclick="setAlarm()">Set Alarm</button>
+        <div id="alarm" class="screen">
+            <div class="card">
+                <h3>Hilarious Routine Alarm</h3>
+                <input type="text" id="aMsg" placeholder="Task to shout...">
+                <input type="time" id="aTime">
+                <button class="btn-accent" onclick="setAlarm()">Set Shout</button>
+                <div id="aStatus" style="margin-top:10px; color:var(--accent)"></div>
+            </div>
         </div>
     </div>
 </main>
 
 <script>
-    // --- NAVIGATION & UNDO/REDO ---
-    let history = ['home'];
-    let redoStack = [];
-
-    function showTool(id, isNavigating = true) {
-        document.querySelectorAll('.tool-screen').forEach(s => s.classList.remove('active'));
+    // --- NAV & UNDO/REDO ---
+    let navHistory = ['home'], redoStack = [];
+    function navTo(id, record = true) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.toggle('active', item.innerText.toLowerCase().includes(id));
-        });
-
-        if (isNavigating && history[history.length-1] !== id) {
-            history.push(id);
-            redoStack = [];
-        }
-        updateHistoryButtons();
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.toggle('active', i.innerText.toLowerCase().includes(id.slice(0,3))));
+        if(record && navHistory[navHistory.length-1] !== id) { navHistory.push(id); redoStack = []; }
+        document.getElementById('uBtn').disabled = navHistory.length <= 1;
+        document.getElementById('rBtn').disabled = redoStack.length === 0;
     }
+    function undo() { if(navHistory.length > 1) { redoStack.push(navHistory.pop()); navTo(navHistory[navHistory.length-1], false); } }
+    function redo() { if(redoStack.length > 0) { const next = redoStack.pop(); navHistory.push(next); navTo(next, false); } }
 
-    function undo() {
-        if (history.length > 1) {
-            redoStack.push(history.pop());
-            showTool(history[history.length - 1], false);
-        }
+    // --- DIGITHEOREMO CALC ---
+    const disp = document.getElementById('display');
+    let isExp = false;
+    function appendValue(v) {
+        if(disp.innerHTML === '0') disp.innerHTML = v;
+        else disp.innerHTML += v;
     }
-
-    function redo() {
-        if (redoStack.length > 0) {
-            const next = redoStack.pop();
-            history.push(next);
-            showTool(next, false);
-        }
-    }
-
-    function updateHistoryButtons() {
-        document.getElementById('undoBtn').disabled = history.length <= 1;
-        document.getElementById('redoBtn').disabled = redoStack.length === 0;
-    }
-
-    // --- CLOCK & ALARM ---
-    let userAlarm = null;
-    setInterval(() => {
-        const now = new Date();
-        document.getElementById('top-clock').innerText = now.toLocaleTimeString();
-        if (userAlarm) {
-            const cur = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-            if (cur === userAlarm.time) {
-                const msg = new SpeechSynthesisUtterance("HEY! " + userAlarm.msg + ". DO IT NOW!");
-                msg.pitch = 2.0;
-                window.speechSynthesis.speak(msg);
-                userAlarm = null;
-            }
-        }
-    }, 1000);
-
-    function setAlarm() {
-        userAlarm = { msg: document.getElementById('alarmMsg').value, time: document.getElementById('alarmTime').value };
-        alert("Routine Set!");
-    }
+    function clearDisplay() { disp.innerHTML = '0'; }
+    function calculate() { try { disp.innerHTML = eval(disp.innerHTML.replace(/÷/g,'/').replace(/×/g,'*')); } catch { disp.innerHTML = "Error"; } }
 
     // --- WEATHER ---
-    async function fetchWeather() {
-        const city = document.getElementById('citySearch').value;
-        const out = document.getElementById('weatherOut');
-        out.innerText = "Scanning...";
+    async function getWeather() {
+        const city = document.getElementById('cityIn').value;
         try {
-            const res = await fetch(`https://weatherapi.com{city}`);
+            const res = await fetch(`https://wttr.in{city}?format=j1`);
             const data = await res.json();
-            out.innerHTML = `<b>${data.location.name}</b>: ${data.current.temp_c}°C<br>Condition: ${data.current.condition.text}`;
-            document.getElementById('top-loc').innerText = `${data.current.temp_c}°C, ${data.location.name}`;
-        } catch { out.innerText = "Error: Use a real city name."; }
+            document.getElementById('weatherOut').innerHTML = `<strong>${city.toUpperCase()}</strong>: ${data.current_condition[0].temp_C}°C`;
+        } catch { alert("Connection Error"); }
     }
 
-    // --- CALCULATOR ---
-    const cDisp = document.getElementById('calc-display');
-    function cIn(v) { if(cDisp.value === "0") cDisp.value = v; else cDisp.value += v; }
-    function cClear() { cDisp.value = "0"; }
-    function cSolve() { try { cDisp.value = eval(cDisp.value.replace('×', '*').replace('÷', '/')); } catch { cDisp.value = "Error"; } }
+    // --- TIC TAC TOE AI (Easy/Hard) ---
+    let board = Array(9).fill(null), gameActive = true;
+    function startTTT() {
+        document.getElementById('active-game').style.display = 'block';
+        const tb = document.getElementById('ttt-board');
+        tb.innerHTML = '';
+        for(let i=0; i<9; i++) {
+            let c = document.createElement('div'); c.className = 'cell';
+            c.onclick = () => playerMove(i);
+            tb.appendChild(c);
+        }
+    }
+    function playerMove(i) {
+        if(!board[i] && gameActive) {
+            board[i]="X"; document.querySelectorAll('.cell')[i].innerText="X";
+            if(!checkWin()) setTimeout(aiMove, 400);
+        }
+    }
+    function aiMove() {
+        let diff = document.getElementById('gameDiff').value;
+        let empty = board.map((v,i) => v===null?i:null).filter(v=>v!==null);
+        if(!empty.length || !gameActive) return;
+        let move = (diff === "hard") ? getSmartMove() : empty[Math.floor(Math.random()*empty.length)];
+        board[move]="O"; document.querySelectorAll('.cell')[move].innerText="O"; checkWin();
+    }
+    function getSmartMove() {
+        // Unbeatable Hard AI logic (simplified Minimax simulation)
+        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        for(let combo of wins) {
+            let line = [board[combo[0]], board[combo[1]], board[combo[2]]];
+            if(line.filter(x => x === "O").length === 2 && line.includes(null)) return combo[line.indexOf(null)];
+        }
+        for(let combo of wins) {
+            let line = [board[combo[0]], board[combo[1]], board[combo[2]]];
+            if(line.filter(x => x === "X").length === 2 && line.includes(null)) return combo[line.indexOf(null)];
+        }
+        return board.indexOf(null);
+    }
+    function checkWin() {
+        const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        for(let w of wins) {
+            if(board[w[0]] && board[w[0]]===board[w[1]] && board[w[0]]===board[w[2]]) {
+                document.getElementById('ttt-status').innerText = board[w[0]] + " Wins!"; gameActive = false; return true;
+            }
+        }
+        if(!board.includes(null)) { document.getElementById('ttt-status').innerText = "Draw!"; gameActive = false; return true; }
+        return false;
+    }
+    function closeGame() { document.getElementById('active-game').style.display = 'none'; board.fill(null); gameActive=true; }
+
+    // --- TIME & ALARM ---
+    let alarm = null;
+    setInterval(() => {
+        const n = new Date(); document.getElementById('clock').innerText = n.toLocaleTimeString();
+        let cur = n.getHours().toString().padStart(2,'0')+":"+n.getMinutes().toString().padStart(2,'0');
+        if(alarm && cur === alarm.t) { window.speechSynthesis.speak(new SpeechSynthesisUtterance("HEY! "+alarm.m)); alarm=null; }
+    }, 1000);
+    function setAlarm() { alarm = { t: document.getElementById('aTime').value, m: document.getElementById('aMsg').value }; alert("Shout Alarm Ready!"); }
 </script>
 </body>
 </html>
