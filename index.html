@@ -3,330 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniFactEb | Secure OS</title>
-    <link href="https://fonts.cdnfonts.com/css/seven-segment" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amita:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Dependencies for Chess & UI -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
-
+    <title>OmniFactEb | Multi-Utility Eb</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Amita:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #1a1a1a; --sidebar: #2b2b2b; --accent: #00ff88; --gold: #d4af37; --text: #efefef; --border: #444; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Amita', sans-serif; display: flex; height: 100vh; overflow: hidden; }
-        
-        /* Auth Overlay */
-        #login-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.95); display: flex; justify-content: center; align-items: center;
-            z-index: 9999; backdrop-filter: blur(12px);
-        }
-        .login-box {
-            background: var(--sidebar); padding: 40px; border-radius: 20px;
-            border: 2px solid var(--gold); text-align: center; width: 320px;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
-        }
-        .login-box input {
-            display: block; width: 90%; margin: 15px auto; padding: 12px;
-            background: #000; border: 1px solid var(--border); color: var(--accent);
-            border-radius: 5px; text-align: center; font-size: 1rem;
+        :root { 
+            --bg: #202124; --sidebar: #2b2c2f; --accent: #8ab4f8; --gold: #fbbc04; 
+            --text: #e8eaed; --card: #303134; --google-blue: #4285f4; 
+            --danger: #ea4335; --success: #34a853;
         }
 
-        /* Navigation */
-        nav { width: 240px; background: var(--sidebar); border-right: 2px solid var(--gold); display: flex; flex-direction: column; padding: 20px; }
-        .nav-item { padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 10px; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
-        .nav-item.active { background: var(--gold); color: #1a1a1a; font-weight: 700; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; display: flex; height: 100vh; overflow: hidden; }
 
-        /* Main Area */
+        /* --- LOGIN OVERLAY --- */
+        #login-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        .login-card { background: var(--card); padding: 40px; border-radius: 8px; width: 350px; text-align: center; border: 1px solid #5f6368; }
+        .login-card input { width: 90%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #5f6368; color: var(--accent); border-radius: 4px; }
+
+        /* --- NAVIGATION --- */
+        nav { width: 240px; background: var(--sidebar); border-right: 1px solid #3c4043; padding: 20px; display: flex; flex-direction: column; }
+        .nav-item { padding: 15px; cursor: pointer; border-radius: 0 25px 25px 0; margin-bottom: 5px; transition: 0.2s; color: #bdc1c6; }
+        .nav-item:hover { background: #3c4043; }
+        .nav-item.active { background: rgba(138, 180, 248, 0.1); color: var(--accent); border-left: 4px solid var(--accent); }
+
+        /* --- MAIN AREA --- */
         main { flex: 1; display: flex; flex-direction: column; }
-        header { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; background: var(--sidebar); border-bottom: 1px solid var(--border); }
+        header { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #3c4043; background: var(--sidebar); }
         .content { flex: 1; padding: 30px; overflow-y: auto; display: flex; justify-content: center; }
         .screen { width: 100%; max-width: 850px; display: none; }
-        .screen.active { display: block; animation: fadeIn 0.4s; }
+        .screen.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Components */
-        .card { background: var(--sidebar); padding: 20px; border-radius: 15px; border: 1px solid var(--border); text-align: center; margin-bottom: 20px;}
-        .calc-container { background: #2b2b2b; padding: 25px; border-radius: 20px; border: 2px solid var(--gold); }
-        #display { background: #000; height: 70px; border-radius: 8px; font-size: 32px; text-align: right; padding: 0 15px; line-height: 70px; color: var(--accent); font-family: 'Seven Segment', monospace; border: 1px solid var(--border); margin-bottom: 15px; overflow: hidden; }
-        
-        .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .ttt-board { display: grid; grid-template-columns: repeat(3, 80px); gap: 5px; justify-content: center; margin: 20px 0; }
-        .cell { width: 80px; height: 80px; background: #3d3d3d; border-radius: 8px; font-size: 2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        
-        button { background: #3d3d3d; color: white; border: 1px solid var(--gold); padding: 10px; border-radius: 6px; cursor: pointer; }
-        .btn-accent { background: var(--accent); color: black; font-weight: bold; }
-        input[type="text"], input[type="time"], input[type="password"] { background:#000; color:var(--accent); border:1px solid var(--gold); padding:8px; border-radius: 4px; }
+        /* --- UI COMPONENTS --- */
+        .card { background: var(--card); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #444; }
+        input, select, textarea { background: #000; color: var(--text); border: 1px solid #5f6368; padding: 10px; border-radius: 4px; }
+        button { cursor: pointer; padding: 10px 20px; border-radius: 4px; border: none; font-weight: bold; transition: 0.2s; }
+        .btn-blue { background: var(--google-blue); color: white; }
+        .btn-blue:hover { background: #357ae8; }
+
+        /* --- SEARCH ENGINE --- */
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-box input { flex: 1; border-radius: 24px; padding-left: 20px; border: 1px solid #5f6368; }
+
+        /* --- CALCULATOR --- */
+        .calc-box { max-width: 320px; margin: 0 auto; }
+        .calc-btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-btn { padding: 18px; font-size: 1.1rem; background: #3c4043; color: white; }
+
+        /* --- WEATHER & GAMES GRID --- */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     </style>
 </head>
 <body>
 
-<!-- Authentication Layer -->
 <div id="login-overlay">
-    <div class="login-box">
-        <h1 style="color:var(--gold); margin-bottom:0;">OmniFactEb</h1>
-        <p id="auth-title" style="color:var(--accent); font-size: 0.8rem; margin-top:5px; letter-spacing: 2px;">SECURE ACCESS REQUIRED</p>
-        <input type="text" id="userInput" placeholder="Username">
-        <input type="password" id="passInput" placeholder="Password">
-        <button class="btn-accent" style="width: 100%; margin-top: 10px;" onclick="handleAuth()" id="mainAuthBtn">INITIALIZE SYSTEM</button>
-        <p style="margin-top: 15px; font-size: 0.8rem;">
-            <span id="toggle-text">New operator?</span> 
-            <a href="#" onclick="toggleAuthMode()" id="toggle-link" style="color:var(--gold); text-decoration: none; font-weight: bold;">Create Account</a>
-        </p>
-        <p id="loginError" style="color: #ff4444; margin-top: 15px; font-size: 0.9rem; display: none;"></p>
+    <div class="login-card">
+        <h1 style="font-family:'Amita'; color:var(--gold)">OmniFactEb</h1>
+        <input type="text" id="uName" placeholder="Operator ID">
+        <input type="password" id="pWord" placeholder="Access Key">
+        <button class="btn-blue" onclick="doLogin()" style="width:100%; margin-top:10px;">AUTHENTICATE</button>
     </div>
 </div>
 
 <nav>
-    <h1 style="color:var(--gold); text-align:center;">OmniFactEb</h1>
-    <div class="nav-item active" onclick="navTo('home')">🏠 Home</div>
-    <div class="nav-item" onclick="navTo('calc')">🔢 Digitheoremo</div>
-    <div class="nav-item" onclick="navTo('weather')">🌦️ Weather Scan</div>
-    <div class="nav-item" onclick="navTo('games')">🎮 Arcade Games</div>
-    <div class="nav-item" onclick="navTo('alarm')">⏰ Routine Alarm</div>
+    <h2 style="font-family:'Amita'; color:var(--gold); text-align: center;">OmniFactEb</h2>
+    <div class="nav-item active" onclick="nav('home')">🏠 Home Base</div>
+    <div class="nav-item" onclick="nav('search')">🔍 Search Engine</div>
+    <div class="nav-item" onclick="nav('calc')">🔢 Calculator</div>
+    <div class="nav-item" onclick="nav('weather')">⛅ Atmosphere</div>
+    <div class="nav-item" onclick="nav('tools')">🛠️ Utility Tools</div>
+    <div class="nav-item" onclick="nav('games')">🎮 Game Zone</div>
 </nav>
 
 <main>
     <header>
-        <div style="display:flex; gap:10px">
-            <button onclick="undo()" id="uBtn" disabled>⟲</button>
-            <button onclick="redo()" id="rBtn" disabled>⟳</button>
-        </div>
-        <div id="clock" style="font-weight:bold; font-size: 1.2rem; color:var(--accent)">00:00:00</div>
+        <div id="status" style="color:var(--accent); font-weight: bold;">● ONLINE</div>
+        <div id="clock">00:00:00</div>
     </header>
 
     <div class="content">
-        <!-- Dashboard -->
+        <!-- HOME -->
         <div id="home" class="screen active">
-            <h1>Command Base Online</h1>
-            <p id="welcomeMsg">Welcome, Operator. System status: <strong>Optimal</strong>.</p>
+            <div class="card" style="text-align: center;">
+                <h1 id="greet">System Locked</h1>
+                <p>Welcome to Class 4 Command Center.</p>
+            </div>
         </div>
 
-        <!-- Calculator -->
+        <!-- SEARCH ENGINE -->
+        <div id="search" class="screen">
+            <div class="card">
+                <h3>Global Web Search</h3>
+                <div class="search-box">
+                    <input type="text" id="query" placeholder="Ask anything...">
+                    <button class="btn-blue" onclick="webSearch()">SEARCH</button>
+                </div>
+                <p style="font-size: 0.8rem; color: #888;">*Redirects to secure Google results.</p>
+            </div>
+        </div>
+
+        <!-- CALCULATOR -->
         <div id="calc" class="screen">
-            <div class="calc-container">
-                <div id="display">0</div>
-                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
-                    <button class="btn-accent" style="background:#c0392b; color:white;" onclick="clearDisplay()">AC</button>
-                    <button class="btn-accent" style="background:#d35400; color:white;" onclick="deleteLast()">DEL</button>
-                    <button onclick="calculateSqrt()">√</button>
-                    <button onclick="startExponent()">^</button>
-                    <button onclick="appendValue('7')">7</button><button onclick="appendValue('8')">8</button><button onclick="appendValue('9')">9</button><button onclick="appendValue('/')">÷</button>
-                    <button onclick="appendValue('4')">4</button><button onclick="appendValue('5')">5</button><button onclick="appendValue('6')">6</button><button onclick="appendValue('*')">×</button>
-                    <button onclick="appendValue('1')">1</button><button onclick="appendValue('2')">2</button><button onclick="appendValue('3')">3</button><button onclick="appendValue('-')">-</button>
-                    <button onclick="appendValue('.')">.</button><button onclick="appendValue('0')">0</button><button class="btn-accent" onclick="calculate()">=</button><button onclick="appendValue('+')">+</button>
+            <div class="card calc-box">
+                <input type="text" id="calc-display" readonly value="0" style="width:100%; text-align:right; font-size:2rem; margin-bottom:10px; border:none; background:transparent;">
+                <div class="calc-btn-grid">
+                    <button class="calc-btn" onclick="clearCalc()" style="background:#5f6368">AC</button>
+                    <button class="calc-btn" onclick="delCalc()" style="background:#5f6368">DEL</button>
+                    <button class="calc-btn" onclick="inputCalc('/')">÷</button>
+                    <button class="calc-btn" onclick="inputCalc('*')">×</button>
+                    <button class="calc-btn" onclick="inputCalc('7')">7</button><button class="calc-btn" onclick="inputCalc('8')">8</button><button class="calc-btn" onclick="inputCalc('9')">9</button><button class="calc-btn" onclick="inputCalc('-')">−</button>
+                    <button class="calc-btn" onclick="inputCalc('4')">4</button><button class="calc-btn" onclick="inputCalc('5')">5</button><button class="calc-btn" onclick="inputCalc('6')">6</button><button class="calc-btn" onclick="inputCalc('+')">+</button>
+                    <button class="calc-btn" onclick="inputCalc('1')">1</button><button class="calc-btn" onclick="inputCalc('2')">2</button><button class="calc-btn" onclick="inputCalc('3')">3</button>
+                    <button class="calc-btn btn-blue" onclick="solveCalc()" style="grid-row: span 2;">=</button>
+                    <button class="calc-btn" onclick="inputCalc('0')" style="grid-column: span 2;">0</button><button class="calc-btn" onclick="inputCalc('.')">.</button>
                 </div>
             </div>
         </div>
 
-        <!-- Weather -->
+        <!-- WEATHER -->
         <div id="weather" class="screen">
             <div class="card">
-                <h3>Atmospheric Scan</h3>
-                <input type="text" id="cityIn" placeholder="Enter City...">
-                <button class="btn-accent" onclick="getWeather()">Scan Environment</button>
-                <div id="weatherOut" style="margin-top:20px; text-align: left; max-width: 300px; margin-left: auto; margin-right: auto; display: none;">
-                    <p>🛰️ <strong>Status:</strong> <span id="w-cond" style="color:var(--accent)">-</span></p>
-                    <p>🌡️ <strong>Temp:</strong> <span id="w-temp">-</span>°C</p>
-                    <p>💧 <strong>Humidity:</strong> <span id="w-hum">-</span>%</p>
-                    <p>🌬️ <strong>Wind:</strong> <span id="w-wind">-</span> km/h</p>
+                <input type="text" id="w-city" placeholder="City Name...">
+                <button class="btn-blue" onclick="getWeather()">SCAN</button>
+                <div class="grid-2" style="margin-top:20px;">
+                    <div class="card">🌡️ <span id="temp-val">--</span>°C<br><small id="weather-desc">N/A</small></div>
+                    <div class="card">🌬️ <span id="wind-val">--</span> km/h<br><small>Wind Speed</small></div>
                 </div>
-                <p id="w-error" style="color:#ff4444; display:none; margin-top:10px;">Target city not found.</p>
             </div>
         </div>
 
-        <!-- Games -->
+        <!-- UTILITY TOOLS -->
+        <div id="tools" class="screen">
+            <div class="grid-2">
+                <div class="card">
+                    <h3>📝 Quick Notes</h3>
+                    <textarea id="notes" style="width:90%; height:100px; margin-bottom:10px;" placeholder="Save a thought..."></textarea>
+                    <button onclick="localStorage.setItem('omniNote', document.getElementById('notes').value)">SAVE</button>
+                </div>
+                <div class="card">
+                    <h3>📏 Unit Converter</h3>
+                    <input type="number" id="unit-val" placeholder="Value" style="width:80%; margin-bottom:5px;">
+                    <select id="unit-type" style="width:88%; margin-bottom:10px;">
+                        <option value="km-m">KM to Meters</option>
+                        <option value="kg-g">KG to Grams</option>
+                    </select>
+                    <button onclick="convertUnits()">CONVERT</button>
+                    <p id="unit-res" style="color:var(--accent); font-weight:bold;"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- GAMES -->
         <div id="games" class="screen">
-            <div class="card">
-                <h3>Arcade Hub</h3>
-                <div class="game-grid">
-                    <button onclick="startTTT()">Tic-Tac-Toe</button>
-                    <button onclick="startChess()">Emoji Chess (AI)</button>
-                    <button onclick="alert('Ludo Protocol Loading...')">Ludo</button>
+            <div class="grid-2">
+                <div class="card" style="text-align:center;">
+                    <h3>RPS Game</h3>
+                    <button onclick="playRPS('rock')">🪨</button>
+                    <button onclick="playRPS('paper')">📄</button>
+                    <button onclick="playRPS('scissors')">✂️</button>
+                    <p id="rps-res"></p>
                 </div>
-            </div>
-            
-            <div id="chess-wrap" class="card" style="display:none;">
-                <div id="chess-board" style="width: 320px; margin: 0 auto;"></div>
-                <p id="chess-status" style="margin-top:10px; color:var(--accent)">Your turn (White)</p>
-                <button onclick="closeChess()">Terminate Chess</button>
-            </div>
-
-            <div id="active-game" class="card" style="display:none;">
-                <div id="ttt-status">Your Turn (X)</div>
-                <div class="ttt-board" id="ttt-board"></div>
-                <button onclick="closeGame()">Quit</button>
-            </div>
-        </div>
-
-        <!-- Alarms -->
-        <div id="alarm" class="screen">
-            <div class="card">
-                <h3>Routine Shout Alarm</h3>
-                <input type="text" id="aMsg" placeholder="Task to shout...">
-                <input type="time" id="aTime">
-                <button class="btn-accent" onclick="setAlarm()">Set Shout</button>
-                <div id="aStatus" style="margin-top:10px; color:var(--accent)"></div>
+                <div class="card" style="text-align:center;">
+                    <h3>Quantum Breach</h3>
+                    <input type="text" id="hack-input" maxlength="4" placeholder="0000" style="width:60px;">
+                    <button onclick="checkHack()">BREACH</button>
+                    <p id="hack-status">Tries: 7</p>
+                </div>
             </div>
         </div>
     </div>
 </main>
 
 <script>
-    // --- LOGIN SYSTEM ---
-    let isSignUpMode = false;
-    function toggleAuthMode() {
-        isSignUpMode = !isSignUpMode;
-        document.getElementById('auth-title').innerText = isSignUpMode ? "CREATE NEW CREDENTIALS" : "SECURE ACCESS REQUIRED";
-        document.getElementById('mainAuthBtn').innerText = isSignUpMode ? "REGISTER OPERATOR" : "INITIALIZE SYSTEM";
-        document.getElementById('toggle-text').innerText = isSignUpMode ? "Already registered?" : "New operator?";
-        document.getElementById('toggle-link').innerText = isSignUpMode ? "Login Here" : "Create Account";
-    }
-    function handleAuth() {
-        const u = document.getElementById('userInput').value.trim();
-        const p = document.getElementById('passInput').value.trim();
-        const err = document.getElementById('loginError');
-        if(!u || !p) { err.innerText="Fields empty"; err.style.display="block"; return; }
-        if(isSignUpMode) {
-            if(localStorage.getItem('user_'+u)) { err.innerText="Username exists"; err.style.display="block"; }
-            else { localStorage.setItem('user_'+u, p); alert("Registered!"); toggleAuthMode(); }
-        } else {
-            if(localStorage.getItem('user_'+u) === p) {
-                document.getElementById('login-overlay').style.display='none';
-                document.getElementById('welcomeMsg').innerHTML = `Welcome, <strong>${u}</strong>. System status: <strong>Optimal</strong>.`;
-                window.speechSynthesis.speak(new SpeechSynthesisUtterance("Access granted. Hello " + u));
-            } else { err.innerText="Invalid credentials"; err.style.display="block"; }
+    // --- CORE LOGIC ---
+    function doLogin() {
+        const u = document.getElementById('uName').value;
+        if(u) {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('greet').innerText = `Welcome, ${u}`;
+            document.getElementById('notes').value = localStorage.getItem('omniNote') || "";
         }
     }
 
-    // --- OS NAVIGATION ---
-    let navHistory = ['home'], redoStack = [];
-    function navTo(id, record = true) {
+    function nav(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(record && navHistory[navHistory.length-1] !== id) { navHistory.push(id); redoStack = []; }
-        document.getElementById('uBtn').disabled = navHistory.length <= 1;
-        document.getElementById('rBtn').disabled = redoStack.length === 0;
-    }
-    function undo() { if(navHistory.length > 1) { redoStack.push(navHistory.pop()); navTo(navHistory[navHistory.length-1], false); } }
-    function redo() { if(redoStack.length > 0) { const next = redoStack.pop(); navHistory.push(next); navTo(next, false); } }
-
-    // --- EMOJI CHESS AI ---
-    let chessGame = null, chessBoard = null;
-    const emojiPieces = {
-        'wP': '♙', 'wR': '♖', 'wN': '♘', 'wB': '♗', 'wQ': '♕', 'wK': '♔',
-        'bP': '♟', 'bR': '♜', 'bN': '♞', 'bB': '♝', 'bQ': '♛', 'bK': '♚'
-    };
-
-    function pieceTheme(piece) {
-        const emoji = emojiPieces[piece];
-        return 'data:image/svg+xml;charset=utf-8,' + 
-            encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><text y="32" font-size="35">${emoji}</text></svg>`);
+        event.currentTarget.classList.add('active');
     }
 
-    function startChess() {
-        document.getElementById('chess-wrap').style.display = 'block';
-        chessGame = new Chess();
-        chessBoard = Chessboard('chess-board', {
-            draggable: true,
-            position: 'start',
-            pieceTheme: pieceTheme,
-            onDrop: handleChessMove
-        });
+    // --- SEARCH ENGINE ---
+    function webSearch() {
+        const q = document.getElementById('query').value;
+        if(q) window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
     }
 
-    function handleChessMove(source, target) {
-        let move = chessGame.move({ from: source, to: target, promotion: 'q' });
-        if (move === null) return 'snapback';
-        document.getElementById('chess-status').innerText = "AI calculating...";
-        window.setTimeout(makeChessAIMove, 300);
-    }
-
-    function makeChessAIMove() {
-        let moves = chessGame.moves();
-        if (chessGame.game_over()) { document.getElementById('chess-status').innerText = "Checkmate/Draw!"; return; }
-        chessGame.move(moves[Math.floor(Math.random() * moves.length)]);
-        chessBoard.position(chessGame.fen());
-        document.getElementById('chess-status').innerText = "Your turn (White)";
-    }
-    function closeChess() { document.getElementById('chess-wrap').style.display = 'none'; }
-
-    // --- DIGITHEOREMO CALC ---
-    const disp = document.getElementById('display');
-    let expo = false;
-    function appendValue(v) { 
-        if(disp.innerText === '0') disp.innerText = v; 
-        else if(expo) { disp.innerHTML += `<sup>${v}</sup>`; expo=false; }
-        else disp.innerText += v; 
-    }
-    function clearDisplay() { disp.innerText = '0'; expo = false; }
-    function deleteLast() { disp.innerText = disp.innerText.length > 1 ? disp.innerText.slice(0,-1) : '0'; }
-    function startExponent() { expo = true; }
-    function calculate() { try { disp.innerText = eval(disp.innerHTML.replace(/<sup>(.*?)<\/sup>/g, "**($1)").replace(/÷/g,'/').replace(/×/g,'*')); } catch { disp.innerText="Error"; } }
-    function calculateSqrt() { try { disp.innerText = Math.sqrt(eval(disp.innerText)).toFixed(2); } catch { disp.innerText="Error"; } }
+    // --- CALCULATOR ---
+    let cD = document.getElementById('calc-display');
+    function inputCalc(v) { if(cD.value === '0') cD.value = v; else cD.value += v; }
+    function clearCalc() { cD.value = '0'; }
+    function delCalc() { cD.value = cD.value.slice(0, -1) || '0'; }
+    function solveCalc() { try { cD.value = eval(cD.value.replace('×','*').replace('÷','/').replace('−','-')); } catch { cD.value = "Error"; } }
 
     // --- WEATHER ---
     async function getWeather() {
-        const city = document.getElementById('cityIn').value.trim();
-        const outDiv = document.getElementById('weatherOut');
-        if(!city) return;
-        try {
-            const res = await fetch(`https://wttr.in/${city}?format=j1`);
-            const data = await res.json();
-            const curr = data.current_condition[0];
-            document.getElementById('w-cond').innerText = curr.weatherDesc[0].value;
-            document.getElementById('w-temp').innerText = curr.temp_C;
-            document.getElementById('w-hum').innerText = curr.humidity;
-            document.getElementById('w-wind').innerText = curr.windspeedKmph;
-            outDiv.style.display = "block"; document.getElementById('w-error').style.display = "none";
-        } catch { outDiv.style.display = "none"; document.getElementById('w-error').style.display = "block"; }
+        const city = document.getElementById('w-city').value;
+        const res = await fetch(`https://wttr.in/${city}?format=j1`);
+        const data = await res.json();
+        document.getElementById('temp-val').innerText = data.current_condition[0].temp_C;
+        document.getElementById('weather-desc').innerText = data.current_condition[0].weatherDesc[0].value;
+        document.getElementById('wind-val').innerText = data.current_condition[0].windspeedKmph;
     }
 
-    // --- TIC TAC TOE ---
-    let b = Array(9).fill(null), active = true;
-    function startTTT() {
-        document.getElementById('active-game').style.display = 'block';
-        const boardDiv = document.getElementById('ttt-board'); boardDiv.innerHTML = '';
-        b.fill(null); active = true;
-        for(let i=0; i<9; i++) {
-            let c = document.createElement('div'); c.className = 'cell';
-            c.onclick = () => { if(!b[i] && active) { b[i]="X"; c.innerText="X"; if(!checkWin()) setTimeout(aiTTT, 400); } };
-            boardDiv.appendChild(c);
-        }
+    // --- UNITS ---
+    function convertUnits() {
+        const v = document.getElementById('unit-val').value;
+        const type = document.getElementById('unit-type').value;
+        let res = type === "km-m" ? v * 1000 + " Meters" : v * 1000 + " Grams";
+        document.getElementById('unit-res').innerText = res;
     }
-    function aiTTT() {
-        let e = b.map((v,i) => v===null?i:null).filter(v=>v!==null);
-        if(!e.length || !active) return;
-        let m = e[Math.floor(Math.random()*e.length)];
-        b[m]="O"; document.querySelectorAll('.cell')[m].innerText="O"; checkWin();
-    }
-    function checkWin() {
-        const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-        for(let combo of w) {
-            if(b[combo[0]] && b[combo[0]]===b[combo[1]] && b[combo[0]]===b[combo[2]]) {
-                document.getElementById('ttt-status').innerText = b[combo[0]] + " Wins!"; active = false; return true;
-            }
-        }
-        if(!b.includes(null)) { document.getElementById('ttt-status').innerText = "Draw!"; return true; }
-        return false;
-    }
-    function closeGame() { document.getElementById('active-game').style.display='none'; }
 
-    // --- SYSTEM TIME & ALARM ---
-    let al = null;
-    setInterval(() => {
-        const d = new Date(); document.getElementById('clock').innerText = d.toLocaleTimeString();
-        let now = d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0');
-        if(al && now === al.t) { window.speechSynthesis.speak(new SpeechSynthesisUtterance(al.m)); al=null; }
-    }, 1000);
-    function setAlarm() { 
-        al = { t: document.getElementById('aTime').value, m: document.getElementById('aMsg').value };
-        document.getElementById('aStatus').innerText = "Alert armed for " + al.t;
+    // --- GAMES (RPS & BREACH) ---
+    function playRPS(c) {
+        const a = ['rock','paper','scissors'][Math.floor(Math.random()*3)];
+        document.getElementById('rps-res').innerText = (c === a) ? "Draw!" : "AI picked " + a;
     }
+
+    let secret = Math.floor(1000 + Math.random()*9000).toString(), tries = 7;
+    function checkHack() {
+        const i = document.getElementById('hack-input').value;
+        tries--;
+        if(i === secret) alert("WIN!"); else document.getElementById('hack-status').innerText = `Tries: ${tries}`;
+        if(tries <= 0) { alert("Locked! " + secret); tries = 7; secret = Math.floor(1000 + Math.random()*9000).toString(); }
+    }
+
+    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
 </html>
