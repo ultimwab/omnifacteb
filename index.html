@@ -3,240 +3,525 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OmniFactEb | Multi-Utility Eb</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Amita:wght@400;700&display=swap" rel="stylesheet">
+    <title>OmniFactEb | Advanced Integrated OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Amita:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { 
             --bg: #202124; --sidebar: #2b2c2f; --accent: #8ab4f8; --gold: #fbbc04; 
-            --text: #e8eaed; --card: #303134; --google-blue: #4285f4; 
-            --danger: #ea4335; --success: #34a853;
+            --text: #e8eaed; --card: #303134; --google-blue: #4285f4; --ai-purple: #c58af9;
+            --calc-clear: #ea4335;
         }
 
         body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; display: flex; height: 100vh; overflow: hidden; }
 
-        /* --- LOGIN OVERLAY --- */
-        #login-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        .login-card { background: var(--card); padding: 40px; border-radius: 8px; width: 350px; text-align: center; border: 1px solid #5f6368; }
-        .login-card input { width: 90%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #5f6368; color: var(--accent); border-radius: 4px; }
-
-        /* --- NAVIGATION --- */
-        nav { width: 240px; background: var(--sidebar); border-right: 1px solid #3c4043; padding: 20px; display: flex; flex-direction: column; }
-        .nav-item { padding: 15px; cursor: pointer; border-radius: 0 25px 25px 0; margin-bottom: 5px; transition: 0.2s; color: #bdc1c6; }
-        .nav-item:hover { background: #3c4043; }
+        /* --- SIDEBAR --- */
+        nav { width: 240px; background: var(--sidebar); border-right: 1px solid #3c4043; padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }
+        .nav-item { padding: 12px 15px; cursor: pointer; border-radius: 0 25px 25px 0; margin-bottom: 5px; transition: 0.2s; color: #bdc1c6; font-size: 0.95rem; }
         .nav-item.active { background: rgba(138, 180, 248, 0.1); color: var(--accent); border-left: 4px solid var(--accent); }
+        .nav-item:hover { background: #3c4043; }
 
         /* --- MAIN AREA --- */
         main { flex: 1; display: flex; flex-direction: column; }
-        header { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #3c4043; background: var(--sidebar); }
-        .content { flex: 1; padding: 30px; overflow-y: auto; display: flex; justify-content: center; }
-        .screen { width: 100%; max-width: 850px; display: none; }
+        header { padding: 15px 30px; background: var(--sidebar); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #3c4043; }
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
+        .screen { width: 100%; max-width: 900px; margin: 0 auto; display: none; }
         .screen.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- UI COMPONENTS --- */
-        .card { background: var(--card); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #444; }
-        input, select, textarea { background: #000; color: var(--text); border: 1px solid #5f6368; padding: 10px; border-radius: 4px; }
-        button { cursor: pointer; padding: 10px 20px; border-radius: 4px; border: none; font-weight: bold; transition: 0.2s; }
-        .btn-blue { background: var(--google-blue); color: white; }
-        .btn-blue:hover { background: #357ae8; }
+        /* --- UI ELEMENTS --- */
+        .card { background: var(--card); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #444; }
+        input, button, select { padding: 10px; border-radius: 4px; border: 1px solid #5f6368; background: #000; color: white; margin: 5px 0; font-family: inherit; }
+        .btn-blue { background: var(--google-blue); border: none; font-weight: bold; cursor: pointer; }
+        .btn-blue:hover { background: #5294ff; }
+        
+        /* --- TABS SYSTEM --- */
+        .search-engine-tabs, .travel-subtabs { display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 1px solid #444; padding-bottom: 10px; flex-wrap: wrap; }
+        .search-tab, .travel-tab { background: #1a1a1a; border: 1px solid #444; color: #bdc1c6; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; }
+        .search-tab.active { background: var(--google-blue); color: white; border-color: var(--google-blue); }
+        .travel-tab.active { background: var(--gold); color: black; border-color: var(--gold); font-weight: bold; }
+        #search-results { margin-top: 15px; }
+        
+        /* IMAGES & LAYOUTS */
+        .premium-ai-card { background: linear-gradient(145deg, rgba(197, 138, 249, 0.15) 0%, rgba(43, 44, 47, 0.7) 100%); border: 1px solid rgba(197, 138, 249, 0.35); padding: 25px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .search-image-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .search-photo-box { height: 120px; border-radius: 10px; border: 1px solid #444; object-fit: cover; background: #202124; width: 100%; transition: transform 0.2s, border-color 0.2s; }
+        .search-photo-box:hover { transform: scale(1.03); border-color: var(--accent); }
 
-        /* --- SEARCH ENGINE --- */
-        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
-        .search-box input { flex: 1; border-radius: 24px; padding-left: 20px; border: 1px solid #5f6368; }
+        .source-pill { display: inline-flex; align-items: center; background: rgba(255,255,255,0.06); border: 1px solid #555; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; color: var(--accent); text-decoration: none; margin-top: 15px; transition: 0.2s; font-weight: 500; }
+        .source-pill:hover { background: var(--google-blue); color: white; border-color: var(--google-blue); }
 
-        /* --- CALCULATOR --- */
-        .calc-box { max-width: 320px; margin: 0 auto; }
-        .calc-btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .calc-btn { padding: 18px; font-size: 1.1rem; background: #3c4043; color: white; }
+        .res-item { background: #1a1a1a; padding: 14px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #333; }
+        .res-item a { color: var(--accent); text-decoration: none; font-size: 1.1rem; font-weight: 500; }
+        .res-item p { color: #bdc1c6; font-size: 0.9rem; margin: 6px 0 0 0; line-height: 1.4; }
 
-        /* --- WEATHER & GAMES GRID --- */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        /* --- CALCULATOR DESIGN MATRIX --- */
+        .google-calc-container { background: #ffffff; border: 1px solid #dadce0; border-radius: 24px; padding: 24px; width: 100%; max-width: 680px; margin: 0 auto; box-sizing: border-box; }
+        .calc-screen-box { width: 100%; margin-bottom: 20px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; min-height: 90px; border: 1px solid #dadce0; border-radius: 16px; padding: 10px 18px; box-sizing: border-box; background: #fafafa; }
+        #calc-display { width: 100%; text-align: right; font-size: 2.8rem; border: none; background: transparent; color: #202124; outline: none; padding: 0; }
+        .calc-grid-layout { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+        .calc-grid-layout button { padding: 15px 0; border: none; border-radius: 24px; cursor: pointer; text-align: center; font-weight: 500; font-size: 1rem; }
+        .btn-sc { background: #f1f3f4; color: #202124; }
+        .btn-num { background: #f8f9fa; color: #202124; font-size: 1.15rem !important; font-weight: 700 !important; }
+        .btn-op { background: #e8f0fe; color: #1967d2; font-size: 1.15rem !important; }
+        .btn-clear { background: #fad2cf; color: #c5221f; font-weight: bold; }
+        .btn-eq { background: #1a73e8; color: #ffffff; font-size: 1.3rem !important; font-weight: bold; }
+
+        /* --- TRAVEL CONTENT DISPLAY --- */
+        .travel-tab-panel { display: none; margin-top: 15px; background: #222326; padding: 15px; border-radius: 8px; border: 1px solid #444; line-height: 1.6; }
+        .travel-tab-panel.active { display: block; }
+        .travel-list-item { margin-bottom: 10px; padding-left: 15px; border-left: 3px solid var(--gold); }
+
+        .chrono-display { font-size: 3rem; text-align: center; font-family: monospace; margin: 15px 0; color: var(--gold); }
+        .flex-buttons { display: flex; gap: 10px; justify-content: center; }
+        #game-canvas { background: #000; border: 2px solid var(--gold); display: block; margin: 0 auto; }
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
     </style>
 </head>
 <body>
 
-<div id="login-overlay">
-    <div class="login-card">
-        <h1 style="font-family:'Amita'; color:var(--gold)">OmniFactEb</h1>
-        <input type="text" id="uName" placeholder="Operator ID">
-        <input type="password" id="pWord" placeholder="Access Key">
-        <button class="btn-blue" onclick="doLogin()" style="width:100%; margin-top:10px;">AUTHENTICATE</button>
-    </div>
-</div>
-
 <nav>
-    <h2 style="font-family:'Amita'; color:var(--gold); text-align: center;">OmniFactEb</h2>
-    <div class="nav-item active" onclick="nav('home')">🏠 Home Base</div>
-    <div class="nav-item" onclick="nav('search')">🔍 Search Engine</div>
-    <div class="nav-item" onclick="nav('calc')">🔢 Calculator</div>
-    <div class="nav-item" onclick="nav('weather')">⛅ Atmosphere</div>
-    <div class="nav-item" onclick="nav('tools')">🛠️ Utility Tools</div>
-    <div class="nav-item" onclick="nav('games')">🎮 Game Zone</div>
+    <h1 style="font-family:'Amita'; color:var(--gold); text-align: center; margin-bottom: 25px; font-size: 1.6rem;">OmniFactEb</h1>
+    <div class="nav-item active" onclick="nav('search')">🔍 Search Engine</div>
+    <div class="nav-item" onclick="nav('calc')">🔢 Complex Calc</div>
+    <div class="nav-item" onclick="nav('travel')">✈️ Travel Guide</div>
+    <div class="nav-item" onclick="nav('alarm-hub')">🚨 Voice Alarm</div>
+    <div class="nav-item" onclick="nav('chrono')">⏱️ Chrono Engine</div>
+    <div class="nav-item" onclick="nav('weather')">⛅ Weather Scan</div>
+    <div class="nav-item" onclick="nav('games')">🕹️ Vector Dodge</div>
 </nav>
 
 <main>
     <header>
-        <div id="status" style="color:var(--accent); font-weight: bold;">● ONLINE</div>
-        <div id="clock">00:00:00</div>
+        <div id="kernel-status" style="color:var(--accent); font-weight:bold;">● OMNI_EXTENDED_SYS_ACTIVE</div>
+        <div id="sys-clock" style="font-family: monospace; font-size: 1.1rem;">00:00:00</div>
     </header>
 
     <div class="content">
-        <!-- HOME -->
-        <div id="home" class="screen active">
-            <div class="card" style="text-align: center;">
-                <h1 id="greet">System Locked</h1>
-                <p>Welcome to Class 4 Command Center.</p>
-            </div>
-        </div>
-
-        <!-- SEARCH ENGINE -->
-        <div id="search" class="screen">
+        <!-- --- SEARCH MATRIX SCREEN --- -->
+        <div id="search" class="screen active">
             <div class="card">
-                <h3>Global Web Search</h3>
-                <div class="search-box">
-                    <input type="text" id="query" placeholder="Ask anything...">
-                    <button class="btn-blue" onclick="webSearch()">SEARCH</button>
+                <h3 style="margin-top:0; color:var(--accent);">Universal Search Matrix</h3>
+                <div class="search-engine-tabs">
+                    <div class="search-tab active" onclick="setSearchTab('web', this)">🌐 General Web</div>
+                    <div class="search-tab" onclick="setSearchTab('wiki', this)">📚 Knowledge Base</div>
+                    <div class="search-tab" onclick="setSearchTab('tech', this)">💻 Developer Core</div>
                 </div>
-                <p style="font-size: 0.8rem; color: #888;">*Redirects to secure Google results.</p>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="search-input" placeholder="Query anything (e.g., Space Rockets, Tigers)..." style="flex:1;">
+                    <button class="btn-blue" onclick="runInternalSearch()" style="padding:0 24px;">SEARCH</button>
+                </div>
+                <div id="search-results"></div>
             </div>
         </div>
 
-        <!-- CALCULATOR -->
+        <!-- --- CALCULATOR SCREEN --- -->
         <div id="calc" class="screen">
-            <div class="card calc-box">
-                <input type="text" id="calc-display" readonly value="0" style="width:100%; text-align:right; font-size:2rem; margin-bottom:10px; border:none; background:transparent;">
-                <div class="calc-btn-grid">
-                    <button class="calc-btn" onclick="clearCalc()" style="background:#5f6368">AC</button>
-                    <button class="calc-btn" onclick="delCalc()" style="background:#5f6368">DEL</button>
-                    <button class="calc-btn" onclick="inputCalc('/')">÷</button>
-                    <button class="calc-btn" onclick="inputCalc('*')">×</button>
-                    <button class="calc-btn" onclick="inputCalc('7')">7</button><button class="calc-btn" onclick="inputCalc('8')">8</button><button class="calc-btn" onclick="inputCalc('9')">9</button><button class="calc-btn" onclick="inputCalc('-')">−</button>
-                    <button class="calc-btn" onclick="inputCalc('4')">4</button><button class="calc-btn" onclick="inputCalc('5')">5</button><button class="calc-btn" onclick="inputCalc('6')">6</button><button class="calc-btn" onclick="inputCalc('+')">+</button>
-                    <button class="calc-btn" onclick="inputCalc('1')">1</button><button class="calc-btn" onclick="inputCalc('2')">2</button><button class="calc-btn" onclick="inputCalc('3')">3</button>
-                    <button class="calc-btn btn-blue" onclick="solveCalc()" style="grid-row: span 2;">=</button>
-                    <button class="calc-btn" onclick="inputCalc('0')" style="grid-column: span 2;">0</button><button class="calc-btn" onclick="inputCalc('.')">.</button>
-                </div>
-            </div>
+            <div id="calculator-injected-container"></div>
         </div>
 
-        <!-- WEATHER -->
-        <div id="weather" class="screen">
-            <div class="card">
-                <input type="text" id="w-city" placeholder="City Name...">
-                <button class="btn-blue" onclick="getWeather()">SCAN</button>
-                <div class="grid-2" style="margin-top:20px;">
-                    <div class="card">🌡️ <span id="temp-val">--</span>°C<br><small id="weather-desc">N/A</small></div>
-                    <div class="card">🌬️ <span id="wind-val">--</span> km/h<br><small>Wind Speed</small></div>
-                </div>
-            </div>
+        <!-- --- TRAVEL GUIDE SCREEN --- -->
+        <div id="travel" class="screen">
+            <div id="travel-injected-container"></div>
         </div>
 
-        <!-- UTILITY TOOLS -->
-        <div id="tools" class="screen">
-            <div class="grid-2">
-                <div class="card">
-                    <h3>📝 Quick Notes</h3>
-                    <textarea id="notes" style="width:90%; height:100px; margin-bottom:10px;" placeholder="Save a thought..."></textarea>
-                    <button onclick="localStorage.setItem('omniNote', document.getElementById('notes').value)">SAVE</button>
-                </div>
-                <div class="card">
-                    <h3>📏 Unit Converter</h3>
-                    <input type="number" id="unit-val" placeholder="Value" style="width:80%; margin-bottom:5px;">
-                    <select id="unit-type" style="width:88%; margin-bottom:10px;">
-                        <option value="km-m">KM to Meters</option>
-                        <option value="kg-g">KG to Grams</option>
-                    </select>
-                    <button onclick="convertUnits()">CONVERT</button>
-                    <p id="unit-res" style="color:var(--accent); font-weight:bold;"></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- GAMES -->
+        <div id="alarm-hub" class="screen"><div id="alarm-injected-container"></div></div>
+        <div id="chrono" class="screen"><div id="chrono-injected-container"></div></div>
+        <div id="weather" class="screen"><div id="weather-injected-container"></div></div>
+        
         <div id="games" class="screen">
-            <div class="grid-2">
-                <div class="card" style="text-align:center;">
-                    <h3>RPS Game</h3>
-                    <button onclick="playRPS('rock')">🪨</button>
-                    <button onclick="playRPS('paper')">📄</button>
-                    <button onclick="playRPS('scissors')">✂️</button>
-                    <p id="rps-res"></p>
-                </div>
-                <div class="card" style="text-align:center;">
-                    <h3>Quantum Breach</h3>
-                    <input type="text" id="hack-input" maxlength="4" placeholder="0000" style="width:60px;">
-                    <button onclick="checkHack()">BREACH</button>
-                    <p id="hack-status">Tries: 7</p>
-                </div>
+            <div style="text-align:center;">
+                <h3>VECTOR DODGE</h3>
+                <p>Score: <span id="game-score" style="color:var(--gold); font-weight:bold;">0</span></p>
+                <canvas id="game-canvas" width="400" height="400"></canvas><br>
+                <button class="btn-blue" onclick="startVectorDodge()">START GAME</button>
             </div>
         </div>
     </div>
 </main>
 
-<script>
-    // --- CORE LOGIC ---
-    function doLogin() {
-        const u = document.getElementById('uName').value;
-        if(u) {
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('greet').innerText = `Welcome, ${u}`;
-            document.getElementById('notes').value = localStorage.getItem('omniNote') || "";
-        }
-    }
+<!-- --- TEMPLATE: CALCULATOR --- -->
+<template id="calc-template">
+    <div class="google-calc-container">
+        <div class="calc-screen-box">
+            <input type="text" class="calc-display-el" id="calc-display" readonly value="0">
+        </div>
+        <div class="calc-grid-layout">
+            <button class="btn-sc" onclick="inputCalc('Math.sin(', this)">sin</button>
+            <button class="btn-sc" onclick="inputCalc('Math.cos(', this)">cos</button>
+            <button class="btn-sc" onclick="inputCalc('Math.tan(', this)">tan</button>
+            <button class="btn-op" onclick="inputCalc('(', this)">(</button>
+            <button class="btn-op" onclick="inputCalc(')', this)">)</button>
+            <button class="btn-clear" onclick="delCalc(this)">CE</button>
+            <button class="btn-clear" onclick="clearCalc(this)">AC</button>
 
+            <button class="btn-sc" onclick="inputCalc('3.14159', this)">π</button>
+            <button class="btn-sc" onclick="inputCalc('Math.sqrt(', this)">√</button>
+            <button class="btn-sc" onclick="inputCalc('%', this)">%</button>
+            <button class="btn-num" onclick="inputCalc('7', this)">7</button>
+            <button class="btn-num" onclick="inputCalc('8', this)">8</button>
+            <button class="btn-num" onclick="inputCalc('9', this)">9</button>
+            <button class="btn-op" onclick="inputCalc('/', this)">÷</button>
+
+            <button class="btn-sc" onclick="inputCalc('2.71828', this)">e</button>
+            <button class="btn-sc" onclick="inputCalc('Math.log(', this)">ln</button>
+            <button class="btn-sc" onclick="calcSpecial('fact', this)">x!</button>
+            <button class="btn-num" onclick="inputCalc('4', this)">4</button>
+            <button class="btn-num" onclick="inputCalc('5', this)">5</button>
+            <button class="btn-num" onclick="inputCalc('6', this)">6</button>
+            <button class="btn-op" onclick="inputCalc('*', this)">×</button>
+
+            <button class="btn-sc" onclick="inputCalc('Math.pow(', this)">xʸ</button>
+            <button class="btn-sc" onclick="inputCalc('Math.log10(', this)">log</button>
+            <button class="btn-sc" onclick="inputCalc('Exp(', this)">Exp</button>
+            <button class="btn-num" onclick="inputCalc('1', this)">1</button>
+            <button class="btn-num" onclick="inputCalc('2', this)">2</button>
+            <button class="btn-num" onclick="inputCalc('3', this)">3</button>
+            <button class="btn-op" onclick="inputCalc('-', this)">−</button>
+
+            <button class="btn-sc" style="visibility:hidden;"></button>
+            <button class="btn-sc" style="visibility:hidden;"></button>
+            <button class="btn-sc" style="visibility:hidden;"></button>
+            <button class="btn-num" onclick="inputCalc('0', this)">0</button>
+            <button class="btn-num" onclick="inputCalc('.', this)">.</button>
+            <button class="btn-eq" onclick="solveCalc(this)">=</button>
+            <button class="btn-op" onclick="inputCalc('+', this)">+</button>
+        </div>
+    </div>
+</template>
+
+<!-- --- TEMPLATE: INTERACTIVE TRAVEL ENGINE --- -->
+<template id="travel-template">
+    <div class="card">
+        <h3>Interactive Travel Explorer</h3>
+        <div style="display:flex; gap:10px;">
+            <input type="text" class="travel-destination" placeholder="Try matching named entries: Paris, Tokyo, New York, Delhi..." style="flex:1;">
+            <button class="btn-blue" onclick="compileTravelGuide(this)">EXPLORE SPOT</button>
+        </div>
+        <div class="travel-results" style="margin-top: 15px;"></div>
+    </div>
+</template>
+
+<template id="alarm-template">
+    <div class="card">
+        <h3>Voice Broadcast Alarm System</h3>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div><input type="time" class="alarm-time" style="width:90%;"></div>
+            <div><input type="text" class="alarm-text" placeholder="WAKE UP!" style="width:90%;"></div>
+        </div>
+        <button class="btn-blue" onclick="setVoiceAlarm(this)" style="margin-top: 15px; width: 100%;">ARM ALARM PROTOCOL</button>
+    </div>
+</template>
+
+<template id="chrono-template">
+    <div class="card">
+        <h3>System Stopwatch</h3>
+        <div class="chrono-display sw-display">00:00:00.0</div>
+        <div class="flex-buttons">
+            <button class="btn-blue" onclick="startStopwatch(this)">START</button>
+            <button onclick="stopStopwatch(this)">STOP</button>
+            <button onclick="resetStopwatch(this)">RESET</button>
+        </div>
+    </div>
+</template>
+
+<template id="weather-template">
+    <div class="card">
+        <h3>Atmosphere Condition Scanner</h3>
+        <div style="display:flex; gap:10px;">
+            <input type="text" class="w-city" placeholder="Enter target city..." style="flex:1;">
+            <button class="btn-blue" onclick="getWeather(this)">SCAN</button>
+        </div>
+        <div class="w-data" style="margin-top:20px; display:none; text-align: center;">
+            <h2 class="w-temp" style="font-size: 3rem; color: var(--gold);">--°C</h2>
+            <p class="w-desc" style="font-size: 1.2rem;">Condition</p>
+        </div>
+    </div>
+</template>
+
+<script>
+    // --- KERNEL NAVIGATION ---
     function nav(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        event.currentTarget.classList.add('active');
+        
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            if(item.getAttribute('onclick').includes(`'${id}'`)) {
+                item.classList.add('active');
+            }
+        });
     }
 
-    // --- SEARCH ENGINE ---
-    function webSearch() {
-        const q = document.getElementById('query').value;
-        if(q) window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank');
+    // --- TEMPLATE INJECTION ARCHITECTURE ---
+    window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('calculator-injected-container').appendChild(document.getElementById('calc-template').content.cloneNode(true));
+        document.getElementById('travel-injected-container').appendChild(document.getElementById('travel-template').content.cloneNode(true));
+        document.getElementById('alarm-injected-container').appendChild(document.getElementById('alarm-template').content.cloneNode(true));
+        document.getElementById('chrono-injected-container').appendChild(document.getElementById('chrono-template').content.cloneNode(true));
+        document.getElementById('weather-injected-container').appendChild(document.getElementById('weather-template').content.cloneNode(true));
+    });
+
+    let currentSearchMode = "web";
+    function setSearchTab(mode, el) {
+        currentSearchMode = mode;
+        document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
     }
 
-    // --- CALCULATOR ---
-    let cD = document.getElementById('calc-display');
-    function inputCalc(v) { if(cD.value === '0') cD.value = v; else cD.value += v; }
-    function clearCalc() { cD.value = '0'; }
-    function delCalc() { cD.value = cD.value.slice(0, -1) || '0'; }
-    function solveCalc() { try { cD.value = eval(cD.value.replace('×','*').replace('÷','/').replace('−','-')); } catch { cD.value = "Error"; } }
+    // --- SEARCH ENGINE MATRIX ---
+    async function runInternalSearch() {
+        const rawQuery = document.getElementById('search-input').value.trim();
+        const container = document.getElementById('search-results');
+        if (!rawQuery) return;
+
+        container.innerHTML = `<p style='text-align:center; color:var(--accent); animation: pulse 1s infinite;'>Searching databases...</p>`;
+
+        try {
+            const wikiSummaryPromise = fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(rawQuery)}`).then(res => res.ok ? res.json() : null);
+            const wikiSearchPromise = fetch(`https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(rawQuery)}&limit=4&namespace=0&format=json&origin=*`).then(res => res.ok ? res.json() : null);
+            
+            const [summaryData, searchData] = await Promise.all([wikiSummaryPromise, wikiSearchPromise]);
+
+            let overviewText = summaryData && summaryData.extract ? summaryData.extract : `No summary available for "${rawQuery}".`;
+            let wikiLink = summaryData?.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${encodeURIComponent(rawQuery)}`;
+
+            let imageStripHTML = `<div class="search-image-strip">`;
+            const sanitizedKeyword = encodeURIComponent(rawQuery.toLowerCase().split(" ")[0]);
+            for (let i = 1; i <= 4; i++) {
+                const fallbackImg = `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80`;
+                const unsplashLive = `https://images.unsplash.com/featured/400x300/?${sanitizedKeyword}&sig=${i}`;
+                imageStripHTML += `<img src="${unsplashLive}" onerror="this.onerror=null; this.src='${fallbackImg}';" class="search-photo-box" alt="Dynamic Source">`;
+            }
+            imageStripHTML += `</div>`;
+
+            let webResultsHTML = "";
+            if (searchData && searchData[1] && searchData[1].length > 0) {
+                for (let i = 0; i < searchData[1].length; i++) {
+                    webResultsHTML += `
+                        <div class="res-item">
+                            <a href="${searchData[3][i]}" target="_blank">${searchData[1][i]}</a>
+                            <p>${searchData[2][i] || "Click the record link above to learn more directly from resources."}</p>
+                        </div>`;
+                }
+            } else {
+                webResultsHTML = `<p style="color:#70757a; font-size:0.9rem;">No extra indexes returned.</p>`;
+            }
+
+            container.innerHTML = `
+                <div class="premium-ai-card">
+                    <h4 style="margin:0 0 15px 0; color:var(--ai-purple); font-size:1.15rem;">✨ Global Overview Panel</h4>
+                    ${imageStripHTML}
+                    <p style="margin:0; font-size:0.98rem; line-height:1.6; color:#e1d5f5;">${overviewText}</p>
+                    <div><a href="${wikiLink}" target="_blank" class="source-pill">🌐 Wikipedia Database Source</a></div>
+                </div>
+                <h4 style="margin:25px 0 12px 0; color:var(--accent); font-weight:500;">Organic Index Matches</h4>
+                ${webResultsHTML}
+            `;
+        } catch (error) {
+            container.innerHTML = "<p style='color:red; text-align:center;'>Connection timeline timeout.</p>";
+        }
+    }
+
+    // --- LOCAL DATABASE CATALOG FOR SPECIFIC PLACES ---
+    const travelCatalog = {
+        paris: {
+            places: ["Eiffel Tower", "Louvre Museum", "Notre-Dame Cathedral", "Arc de Triomphe"],
+            things: ["Take a sunset boat cruise along the Seine River.", "Sample fresh croissants at a sidewalk café in Montmartre.", "Walk through the artistic gardens of Versailles Palace."],
+            flights: ["Air France", "Lufthansa", "Emirates", "Air India (Connecting via CDG)"]
+        },
+        tokyo: {
+            places: ["Shibuya Crossing", "Sensō-ji Temple", "Tokyo Skytree", "Meiji Jingu Shrine"],
+            things: ["Explore the brightly lit anime shops in Akihabara.", "Try fresh sushi at the Outer Tsukiji Fish Market.", "Take a peaceful stroll under cherry blossom trees at Ueno Park."],
+            flights: ["Japan Airlines (JAL)", "All Nippon Airways (ANA)", "Singapore Airlines", "IndiGo"]
+        },
+        "new york": {
+            places: ["Statue of Liberty", "Central Park", "Times Square", "Empire State Building"],
+            things: ["Watch a live musical theater show on Broadway.", "Walk across the historic wooden paths of the Brooklyn Bridge.", "Visit the world-famous exhibits inside the Museum of Modern Art (MoMA)."],
+            flights: ["Delta Air Lines", "United Airlines", "British Airways", "Air India"]
+        },
+        delhi: {
+            places: ["The Red Fort", "Qutub Minar", "India Gate", "Lotus Temple"],
+            things: ["Go on a rickshaw ride through the busy market lanes of Chandni Chowk.", "Taste traditional paranthas at Gali Paranthe Wali.", "Visit the peaceful gardens surrounding Humayun's Tomb."],
+            flights: ["Air India", "IndiGo", "Vistara", "SpiceJet"]
+        }
+    };
+
+    // --- INTERACTIVE TRAVEL GUIDE SUBSYSTEM ---
+    async function compileTravelGuide(el) {
+        const root = el.closest('.card');
+        const destInput = root.querySelector('.travel-destination').value.trim();
+        const res = root.querySelector('.travel-results');
+        if(!destInput) return;
+
+        res.innerHTML = `<p style="color:var(--gold); text-align:center; animation: pulse 1s infinite;">Assembling custom itinerary charts, flight data patterns, and scenery frames...</p>`;
+
+        try {
+            const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(destInput)}`);
+            if(!response.ok) throw new Error();
+            const data = await response.json();
+
+            const description = data.extract || "No custom profile logged for this destination spot yet.";
+            const cleanKey = destInput.toLowerCase().trim();
+            const keyword = encodeURIComponent(cleanKey.split(" ")[0]);
+
+            // Look up catalog entries or use smart default fallbacks
+            const targetData = travelCatalog[cleanKey] || {
+                places: [`Central ${destInput} Square`, "Historical Civic Museum", "Scenic Old Town District"],
+                things: [`Take an educational walking tour across historic downtown paths.`, `Taste iconic local street foods at the city's open-air markets.`, `Shop for unique regional handicrafts at community market stalls.`],
+                flights: ["Air India", "IndiGo", "Singapore Airlines", "Emirates Hubs"]
+            };
+
+            // Formulate 4 dynamic image strips using Unsplash Source API
+            let travelStripHTML = `<div class="search-image-strip" style="margin-top:15px;">`;
+            for (let i = 1; i <= 4; i++) {
+                const defaultScenicImg = `https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=400&q=80`;
+                const unsplashScenic = `https://images.unsplash.com/featured/400x300/?${keyword},landmark,travel&sig=${i + 150}`;
+                travelStripHTML += `<img src="${unsplashScenic}" onerror="this.onerror=null; this.src='${defaultScenicImg}';" class="search-photo-box" alt="${destInput} Landmark View">`;
+            }
+            travelStripHTML += `</div>`;
+
+            // Build dynamic interactive subtab layout
+            res.innerHTML = `
+                <div class="premium-ai-card" style="background: linear-gradient(145deg, rgba(251, 188, 4, 0.1) 0%, rgba(43, 44, 47, 0.9) 100%); border: 1px solid rgba(251, 188, 4, 0.35);">
+                    <h4 style="margin:0 0 10px 0; color:var(--gold); font-size:1.3rem;">✈️ INTERACTIVE TRAVEL GUIDE: ${destInput.toUpperCase()}</h4>
+                    
+                    ${travelStripHTML}
+
+                    <!-- Subtabs -->
+                    <div class="travel-subtabs" style="margin-top:20px;">
+                        <div class="travel-tab active" onclick="switchTravelTab('t-desc', this)">📖 Overview</div>
+                        <div class="travel-tab" onclick="switchTravelTab('t-places', this)">📍 Places to Go</div>
+                        <div class="travel-tab" onclick="switchTravelTab('t-things', this)">🎯 Things to Do</div>
+                        <div class="travel-tab" onclick="switchTravelTab('t-flights', this)">🛫 Transit & Flights</div>
+                    </div>
+
+                    <!-- Panel 1: Description -->
+                    <div id="t-desc" class="travel-tab-panel active">
+                        <p style="margin:0; color:#fceecb;">${description}</p>
+                    </div>
+
+                    <!-- Panel 2: Places to Go -->
+                    <div id="t-places" class="travel-tab-panel">
+                        <h5 style="margin-top:0; color:var(--gold);">Must-Visit Landmarks:</h5>
+                        ${targetData.places.map(place => `<div class="travel-list-item"><strong>${place}</strong></div>`).join('')}
+                    </div>
+
+                    <!-- Panel 3: Things to Do -->
+                    <div id="t-things" class="travel-tab-panel">
+                        <h5 style="margin-top:0; color:var(--gold);">Top Activities & Experiences:</h5>
+                        ${targetData.things.map(thing => `<div class="travel-list-item">${thing}</div>`).join('')}
+                    </div>
+
+                    <!-- Panel 4: Flights & Carrier Logistics -->
+                    <div id="t-flights" class="travel-tab-panel">
+                        <p style="margin-top:0; color:var(--accent);"><strong>Recommended Air Carriers to ${destInput}:</strong></p>
+                        ${targetData.flights.map(flight => `<div class="travel-list-item">✈️ ${flight}</div>`).join('')}
+                        <p style="font-size:0.85rem; color:#888; margin-top:15px; margin-bottom:0;">*Booking Tip: Check flights 4-6 weeks early to find optimal scheduling windows and budget matrix limits.</p>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            res.innerHTML = `<p style="color:red; text-align:center;">Could not compile specific records for "${destInput}". Please check connection.</p>`;
+        }
+    }
+
+    function switchTravelTab(panelId, tabEl) {
+        const rootCard = tabEl.closest('.premium-ai-card');
+        rootCard.querySelectorAll('.travel-tab').forEach(t => t.classList.remove('active'));
+        rootCard.querySelectorAll('.travel-tab-panel').forEach(p => p.classList.remove('active'));
+        
+        tabEl.classList.add('active');
+        rootCard.querySelector(`#${panelId}`).classList.add('active');
+    }
+
+    // --- CALCULATOR ENGINE ---
+    function getCalcElements(el) {
+        const root = el.closest('.google-calc-container');
+        return { display: root.querySelector('.calc-display-el') };
+    }
+    function inputCalc(v, el) {
+        const { display } = getCalcElements(el);
+        if (display.value === '0' && v !== '.') { display.value = v; } else { display.value += v; }
+    }
+    function clearCalc(el) { const { display } = getCalcElements(el); display.value = '0'; }
+    function delCalc(el) { const { display } = getCalcElements(el); display.value = display.value.slice(0, -1) || '0'; }
+    function solveCalc(el) {
+        const { display } = getCalcElements(el);
+        try { 
+            let expression = display.value.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+            display.value = eval(expression); 
+        } catch { display.value = "Syntax Error"; }
+    }
+    function calcSpecial(type, el) {
+        const { display } = getCalcElements(el);
+        let val = parseFloat(display.value);
+        if(isNaN(val)) return;
+        if(type === 'fact') {
+            let f = 1; for(let i=1; i<=val; i++) f *= i;
+            display.value = f;
+        }
+    }
+
+    // --- STOPWATCH ---
+    let swStart = 0, swElapsed = 0, swInterval = null;
+    function startStopwatch(el) {
+        if(swInterval) return;
+        let disp = el.closest('.card').querySelector('.sw-display');
+        swStart = Date.now() - swElapsed;
+        swInterval = setInterval(() => {
+            swElapsed = Date.now() - swStart;
+            let totalMil = Math.floor(swElapsed / 100);
+            let totalSec = Math.floor(swElapsed / 1000);
+            let m = Math.floor(totalSec / 60).toString().padStart(2,'0');
+            let s = (totalSec % 60).toString().padStart(2,'0');
+            let ms = (totalMil % 10);
+            disp.innerText = `${m}:${s}.${ms}`;
+        }, 100);
+    }
+    function stopStopwatch() { clearInterval(swInterval); swInterval = null; }
+    function resetStopwatch(el) { stopStopwatch(); swElapsed = 0; el.closest('.card').querySelector('.sw-display').innerText = "00:00:00.0"; }
 
     // --- WEATHER ---
-    async function getWeather() {
-        const city = document.getElementById('w-city').value;
-        const res = await fetch(`https://wttr.in/${city}?format=j1`);
-        const data = await res.json();
-        document.getElementById('temp-val').innerText = data.current_condition[0].temp_C;
-        document.getElementById('weather-desc').innerText = data.current_condition[0].weatherDesc[0].value;
-        document.getElementById('wind-val').innerText = data.current_condition[0].windspeedKmph;
+    async function getWeather(el) {
+        const root = el.closest('.card');
+        const city = root.querySelector('.w-city').value;
+        if(!city) return;
+        try {
+            const res = await fetch(`https://wttr.in/${city}?format=j1`);
+            const data = await res.json();
+            root.querySelector('.w-temp').innerText = data.current_condition[0].temp_C + "°C";
+            root.querySelector('.w-desc').innerText = data.current_condition[0].weatherDesc[0].value;
+            root.querySelector('.w-data').style.display = 'block';
+        } catch { alert("Atmosphere scan error."); }
     }
 
-    // --- UNITS ---
-    function convertUnits() {
-        const v = document.getElementById('unit-val').value;
-        const type = document.getElementById('unit-type').value;
-        let res = type === "km-m" ? v * 1000 + " Meters" : v * 1000 + " Grams";
-        document.getElementById('unit-res').innerText = res;
+    // --- VECTOR DODGE ---
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    let player = { x: 185, y: 350, w: 30, h: 30 }, enemies = [], score = 0, gameActive = false;
+    canvas.onmousemove = (e) => { player.x = e.clientX - canvas.getBoundingClientRect().left - 15; };
+    function startVectorDodge() { gameActive = true; score = 0; enemies = []; animate(); }
+    function animate() {
+        if(!gameActive) return;
+        ctx.clearRect(0,0,400,400);
+        ctx.fillStyle = "#8ab4f8"; ctx.fillRect(player.x, player.y, player.w, player.h);
+        if(Math.random() < 0.06) enemies.push({ x: Math.random()*370, y: 0, s: 4 });
+        ctx.fillStyle = "#fbbc04";
+        enemies.forEach((en, i) => {
+            en.y += en.s; ctx.fillRect(en.x, en.y, 20, 20);
+            if(en.y > 330 && en.x < player.x + 30 && en.x + 20 > player.x) { gameActive = false; alert("End of Line. Score: " + score); }
+            if(en.y > 400) { enemies.splice(i, 1); score++; document.getElementById('game-score').innerText = score; }
+        });
+        requestAnimationFrame(animate);
     }
 
-    // --- GAMES (RPS & BREACH) ---
-    function playRPS(c) {
-        const a = ['rock','paper','scissors'][Math.floor(Math.random()*3)];
-        document.getElementById('rps-res').innerText = (c === a) ? "Draw!" : "AI picked " + a;
-    }
-
-    let secret = Math.floor(1000 + Math.random()*9000).toString(), tries = 7;
-    function checkHack() {
-        const i = document.getElementById('hack-input').value;
-        tries--;
-        if(i === secret) alert("WIN!"); else document.getElementById('hack-status').innerText = `Tries: ${tries}`;
-        if(tries <= 0) { alert("Locked! " + secret); tries = 7; secret = Math.floor(1000 + Math.random()*9000).toString(); }
-    }
-
-    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    setInterval(() => { document.getElementById('sys-clock').innerText = new Date().toLocaleTimeString(); }, 1000);
 </script>
 </body>
 </html>
